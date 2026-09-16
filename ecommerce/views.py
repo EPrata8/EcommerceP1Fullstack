@@ -1,54 +1,71 @@
 from django.shortcuts import get_object_or_404, redirect, render
-from .models import ItemPedido, Organizacao, Pedido, Produto
+from .models import ItemPedido, Pedido, Produto
 
-def lista_produtos(request):
-    produtos = Produto.objects.filter(estoque__gt=0)
-    return render(request, "loja/lista_produtos.html", {"produtos": produtos})
+
+def home(request):
+  # Filtra produtos com estoque maior que zero
+  produtos = Produto.objects.filter(estoque__gt=0)
+  return render(request, 'ecommerce/index.html', {'produtos': produtos})
+
 
 def adicionar_ao_carrinho(request, produto_id):
-    prod = get_object_or_404(Produto, id=produto_id)
-    carrinho = request.session.get("carrinho", {})
+  produto = get_object_or_404(Produto, id=produto_id)
 
-    produto_id_str = str(produto_id)
-    if produto_id_str in carrinho:
-        carrinho[produto_id_str]["quantidade"] += 1
-    else:
-        carrinho[produto_id_str] = {
-            "nome": prod.nome,
-            "preco": float(prod.preco),
-            "quantidade": 1,
-        }
+  if 'carrinho' not in request.session:
+    request.session['carrinho'] = {}
 
-    request.session["carrinho"] = carrinho
-    return redirect("ver_carrinho")
+  carrinho = request.session['carrinho']
+  str_id = str(produto_id)
+
+  if str_id in carrinho:
+    carrinho[str_id]['quantidade'] += 1
+  else:
+    carrinho[str_id] = {
+        'nome': produto.nome,
+        'preco': float(produto.preco),
+        'quantidade': 1,
+    }
+
+  request.session.modified = True
+  return redirect('ver_carrinho')
+
 
 def ver_carrinho(request):
-    carrinho = request.session.get("carrinho", {})
-    total_geral = sum(
-        item["preco"] * item["quantidade"] for item in carrinho.values()
-    )
-    return render(
-        request,
-        "loja/carrinho.html",
-        {"carrinho": carrinho, "total_geral": total_geral},
-    )
+  carrinho = request.session.get('carrinho', {})
+  produtos_no_carrinho = []
+  total_geral = 0
+
+  for produto_id, item in carrinho.items():
+    subtotal = item['preco'] * item['quantidade']
+    total_geral += subtotal
+    produtos_no_carrinho.append({
+        'id': produto_id,
+        'nome': item['nome'],
+        'preco': item['preco'],
+        'quantidade': item['quantidade'],
+        'subtotal': subtotal,
+    })
+
+  context = {
+      'itens': produtos_no_carrinho,
+      'total_geral': total_geral,
+  }
+  return render(request, 'ecommerce/carrinho.html', context)
+
 
 def finalizar_pedido(request):
-    carrinho = request.session.get("carrinho", {})
-    if not carrinho:
-        return redirect("lista_produtos")
+  carrinho = request.session.get('carrinho', {})
+  if not carrinho:
+    return redirect('home')
 
-    if not request.user.is_authenticated:
-        return redirect("/admin/login/?next=/carrinho/")
+  total_geral = sum(
+      item['preco'] * item['quantidade'] for item in carrinho.values()
+  )
 
-    org = Organizacao.objects.first()
-    ped = Pedido.objects.create(organizacao=org, cliente=request.user)
+  # Limpa o carrinho após finalizar a compra
+  request.session['carrinho'] = {}
+  request.session.modified = True
 
-    for prod_id, dados in carrinho.items():
-        prod = get_object_or_404(Produto, id=int(prod_id))
-        ItemPedido.objects.create(
-            pedido=ped, produto=prod, quantidade=dados["quantidade"]
-        )
-
-    request.session["carrinho"] = {}
-    return render(request, "loja/sucesso.html", {"pedido": ped})
+  return render(
+      request, 'ecommerce/sucesso.html', {'total_geral': total_geral}
+  )

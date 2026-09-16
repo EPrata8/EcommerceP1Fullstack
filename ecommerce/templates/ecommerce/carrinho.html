@@ -1,0 +1,54 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4 text-light">🛒 Meu Carrinho de Compras</h2>
+        
+        {% if itens %}
+            <div class="card bg-dark text-white border-secondary shadow">
+                <div class="card-body">
+                    <table class="table table-dark table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Preço Unitário</th>
+                                <th>Quantidade</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in itens %}
+                                <tr>
+                                    <td>{{ item.nome }}</td>
+                                    <td>R$ {{ item.preco|floatformat:2 }}</td>
+                                    <td>{{ item.quantidade }}</td>
+                                    <td class="text-end fw-bold text-success">R$ {{ item.subtotal|floatformat:2 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    <hr class="border-secondary">
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <h4 class="text-light mb-0">Total Geral:</h4>
+                        <h3 class="text-success fw-bold mb-0">R$ {{ total_geral|floatformat:2 }}</h3>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'home' %}" class="btn btn-outline-light">Continuar Comprando</a>
+                        <a href="{% url 'finalizar_pedido' %}" class="btn btn-success btn-lg">Finalizar Pedido</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center py-4" role="alert">
+                <h4>Seu carrinho está vazio!</h4>
+                <p class="mb-3">Explore os produtos disponíveis na página inicial.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">Voltar para a Loja</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

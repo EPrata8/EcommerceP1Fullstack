@@ -1,0 +1,25 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <div class="card bg-dark text-white border-success shadow-lg p-5">
+            <div class="card-body">
+                <div class="mb-4">
+                    <span class="display-1 text-success">✅</span>
+                </div>
+                <h2 class="text-light mb-3">Pedido Finalizado com Sucesso!</h2>
+                <p class="text-muted fs-5 mb-4">Obrigado pela sua compra. O seu pedido foi processado e registrado no sistema.</p>
+                
+                {% if total_geral %}
+                    <div class="alert alert-secondary text-light border-secondary mb-4">
+                        <h4 class="mb-0">Valor Total Pago: <span class="text-success fw-bold">R$ {{ total_geral|floatformat:2 }}</span></h4>
+                    </div>
+                {% endif %}
+
+                <a href="{% url 'home' %}" class="btn btn-primary btn-lg mt-2">Voltar para a Loja</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

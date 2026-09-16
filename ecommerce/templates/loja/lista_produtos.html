@@ -1,0 +1,28 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Lista de Produtos Disponíveis</h2>
+    </div>
+
+    {% for produto in produtos %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ produto.nome }}</h5>
+                    <p class="card-text text-muted">{{ produto.descricao }}</p>
+                    <p class="fw-bold text-success fs-5">R$ {{ produto.preco }}</p>
+                    <a href="#" class="btn btn-primary w-100">Adicionar ao Carrinho</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-warning" role="alert">
+                Nenhum produto cadastrado no momento. Acesse o painel para o cadastro
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
