@@ -1,0 +1,54 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Bem-vindo à Loja!</h2>
+        <p class="text-muted">Confira os melhores produtos disponíveis na nossa plataforma.</p>
+        
+        <form method="GET" action="{% url 'home' %}" class="row g-3 mt-3">
+            <div class="col-md-6">
+                <input type="text" name="q" class="form-control bg-dark text-light border-secondary" placeholder="Pesquisar produto por nome..." value="{{ request.GET.q }}">
+            </div>
+            
+            <div class="col-md-4">
+                <select name="organizacao" class="form-select bg-dark text-light border-secondary">
+                    <option value="">Todas as Lojas / Categorias</option>
+                    {% for org in organizacoes %}
+                        <option value="{{ org.id }}" {% if request.GET.organizacao == org.id|stringformat:"s" %}selected{% endif %}>
+                            {{ org.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<h3 class="mb-3">Produtos em Destaque</h3>
+
+<div class="row">
+    {% for produto in produtos %}
+        <div class="col-md-4 mb-3">
+            <div class="card bg-dark text-light border-secondary h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ produto.nome }}</h5>
+                    <p class="card-text text-muted">{{ produto.descricao }}</p>
+                    <p class="text-success fw-bold mt-auto">R$ {{ produto.preco }}</p>
+                    <a href="{% url 'adicionar_ao_carrinho' produto.id %}" class="btn btn-primary w-100 mt-2">Adicionar ao Carrinho</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-warning text-center" role="alert">
+                Nenhum produto foi encontrado com os critérios informados.
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
