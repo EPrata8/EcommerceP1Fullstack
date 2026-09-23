@@ -37,6 +37,12 @@
             <div class="card bg-dark text-light border-secondary h-100 shadow-sm">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ produto.nome }}</h5>
+                    
+                    <!-- Exibe a loja / organização do produto -->
+                    {% if produto.organizacao %}
+                        <p class="text-info small mb-1">Loja: {{ produto.organizacao.nome }}</p>
+                    {% endif %}
+                    
                     <p class="card-text text-muted">{{ produto.descricao }}</p>
                     <p class="text-success fw-bold mt-auto">R$ {{ produto.preco }}</p>
                     <a href="{% url 'adicionar_ao_carrinho' produto.id %}" class="btn btn-primary w-100 mt-2">Adicionar ao Carrinho</a>
