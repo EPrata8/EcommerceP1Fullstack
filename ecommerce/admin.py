@@ -1,5 +1,7 @@
 from django.contrib import admin
 from .models import Cupom, ItemPedido, Organizacao, Pedido, Produto, Vendedor
+from .forms import ProdutoForm
+
 
 class ItemPedidoInline(admin.TabularInline):
     model = ItemPedido
@@ -12,7 +14,10 @@ class PedidoAdmin(admin.ModelAdmin):
     inlines = [ItemPedidoInline]
     readonly_fields = ["total"]
 
+@admin.register(Produto)
+class ProdutoAdmin(admin.ModelAdmin):
+    form = ProdutoForm
+
 admin.site.register(Organizacao)
 admin.site.register(Vendedor)
-admin.site.register(Produto)
 admin.site.register(Cupom)
