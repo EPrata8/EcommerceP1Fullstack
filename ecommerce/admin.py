@@ -1,5 +1,11 @@
 from django.contrib import admin
+<<<<<<< HEAD
 from django.utils.html import format_html
+=======
+from .models import Cupom, ItemPedido, Organizacao, Pedido, Produto, Vendedor
+from .forms import ProdutoForm
+
+>>>>>>> 3a39be6964b3f167629dc8b6025f92803e5a3fe4
 
 from .models import Cupom, ItemPedido, Organizacao, Pedido, Perfil, Produto, Vendedor
 
@@ -122,6 +128,7 @@ class PedidoAdmin(admin.ModelAdmin):
     inlines = [ItemInline]
     actions = [marcar_como_pago, marcar_como_cancelado]
 
+<<<<<<< HEAD
     fieldsets = (
         ("Dados do Pedido", {
             "fields": ("organizacao", "cliente", "status", "criado_em"),
@@ -130,3 +137,12 @@ class PedidoAdmin(admin.ModelAdmin):
             "fields": ("cupom", "total"),
         }),
     )
+=======
+@admin.register(Produto)
+class ProdutoAdmin(admin.ModelAdmin):
+    form = ProdutoForm
+
+admin.site.register(Organizacao)
+admin.site.register(Vendedor)
+admin.site.register(Cupom)
+>>>>>>> 3a39be6964b3f167629dc8b6025f92803e5a3fe4
