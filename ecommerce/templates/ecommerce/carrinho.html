@@ -1,85 +1,72 @@
 {% extends 'ecommerce/base.html' %}
+{% block titulo %}Carrinho{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h2 class="mb-4 text-light">🛒 Meu Carrinho de Compras</h2>
-        
-        {% if itens %}
-            <div class="card bg-dark text-white border-secondary shadow">
-                <div class="card-body">
-                    <table class="table table-dark table-striped align-middle">
-                        <thead>
-                            <tr>
-                                <th>Produto</th>
-                                <th>Preço Unitário</th>
-                                <th>Quantidade</th>
-                                <th class="text-end">Subtotal</th>
-                                <th class="text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in itens %}
-                                <tr>
-                                    <td>{{ item.nome }}</td>
-                                    <td>R$ {{ item.preco|floatformat:2 }}</td>
-                                    <td>{{ item.quantidade }}</td>
-                                    <td class="text-end fw-bold text-success">R$ {{ item.subtotal|floatformat:2 }}</td>
-                                    <td class="text-center">
-                                        <a href="{% url 'remover_do_carrinho' item.id %}" class="btn btn-sm btn-outline-danger" title="Remover unidade">🗑️ Remover</a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    
-                    <hr class="border-secondary">
+<header class="mb-4">
+    <h1>Seu carrinho</h1>
+    {% if loja %}<p class="suave mb-0">Compra na loja {{ loja.nome }}.</p>{% endif %}
+</header>
 
-                    <div class="row mb-4 align-items-center">
-                        <div class="col-md-6">
-                            <form action="{% url 'aplicar_cupom' %}" method="POST" class="d-flex">
-                                {% csrf_token %}
-                                <input type="text" name="codigo_cupom" class="form-control me-2 bg-secondary text-white border-0" placeholder="Código do Cupom" value="{{ codigo_cupom|default:'' }}">
-                                <button type="submit" class="btn btn-outline-light">Aplicar Cupom</button>
-                            </form>
-                        </div>
-                        <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                            {% if codigo_cupom %}
-                                <span class="badge bg-success fs-6">Cupom Ativo: {{ codigo_cupom }}</span>
-                            {% endif %}
-                        </div>
+{% if itens %}
+<div class="painel">
+    <div class="table-responsive">
+    <table class="tabela">
+        <thead>
+            <tr><th>Produto</th><th>Preço</th><th>Quantidade</th><th class="dir">Subtotal</th></tr>
+        </thead>
+        <tbody>
+        {% for i in itens %}
+            <tr>
+                <td>{{ i.produto.nome }}</td>
+                <td>R$ {{ i.produto.preco|floatformat:"2g" }}</td>
+                <td>
+                    <div class="qtd">
+                        <form method="post" action="{% url 'remover_do_carrinho' i.produto.pk %}">{% csrf_token %}<button aria-label="Diminuir quantidade">−</button></form>
+                        <span>{{ i.quantidade }}</span>
+                        <form method="post" action="{% url 'adicionar_ao_carrinho' i.produto.pk %}">{% csrf_token %}<button aria-label="Aumentar quantidade">+</button></form>
                     </div>
-                    
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <h4 class="text-light mb-0">Subtotal:</h4>
-                        <h4 class="text-light mb-0">R$ {{ subtotal_geral|floatformat:2 }}</h4>
-                    </div>
+                </td>
+                <td class="dir">R$ {{ i.subtotal|floatformat:"2g" }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
 
-                    {% if desconto_aplicado > 0 %}
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <h5 class="text-warning mb-0">Desconto:</h5>
-                            <h5 class="text-warning mb-0">- R$ {{ desconto_aplicado|floatformat:2 }}</h5>
-                        </div>
-                    {% endif %}
-                    
-                    <div class="d-flex justify-content-between align-items-center mt-3 border-top border-secondary pt-3">
-                        <h3 class="text-light mb-0">Total Geral:</h3>
-                        <h2 class="text-success fw-bold mb-0">R$ {{ total_geral|floatformat:2 }}</h2>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="{% url 'home' %}" class="btn btn-outline-light">Continuar Comprando</a>
-                        <a href="{% url 'finalizar_pedido' %}" class="btn btn-success btn-lg">Finalizar Pedido</a>
-                    </div>
-                </div>
-            </div>
+    <div class="row g-4 mt-2 align-items-start">
+        <div class="col-md-6">
+            <form method="post" action="{% url 'aplicar_cupom' %}" class="d-flex gap-2">
+                {% csrf_token %}
+                <input class="form-control" name="codigo_cupom" placeholder="Código do cupom" value="{{ codigo_cupom|default:'' }}" aria-label="Código do cupom">
+                <button class="btn btn-contorno">Aplicar</button>
+            </form>
+            <form method="post" action="{% url 'esvaziar_carrinho' %}" class="mt-2">
+                {% csrf_token %}
+                <button class="btn btn-link-suave btn-sm p-0">Esvaziar carrinho</button>
+            </form>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <div class="suave">Subtotal: R$ {{ subtotal_geral|floatformat:"2g" }}</div>
+            {% if desconto_aplicado > 0 %}<div class="suave">Desconto ({{ codigo_cupom }}): − R$ {{ desconto_aplicado|floatformat:"2g" }}</div>{% endif %}
+            <div class="total">R$ {{ total_geral|floatformat:"2g" }}</div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between gap-2 mt-4 pt-4 border-top">
+        <a href="{% url 'home' %}" class="btn btn-contorno">Continuar comprando</a>
+        {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'finalizar_pedido' %}">{% csrf_token %}
+                <button class="btn btn-latao btn-lg">Finalizar pedido</button>
+            </form>
         {% else %}
-            <div class="alert alert-info text-center py-4" role="alert">
-                <h4>Seu carrinho está vazio!</h4>
-                <p class="mb-3">Explore os produtos disponíveis na página inicial.</p>
-                <a href="{% url 'home' %}" class="btn btn-primary">Voltar para a Loja</a>
-            </div>
+            <a class="btn btn-latao btn-lg" href="{% url 'login' %}?next={% url 'ver_carrinho' %}">Entrar para finalizar</a>
         {% endif %}
     </div>
 </div>
+{% else %}
+<div class="painel">
+    <p class="vazio">Seu carrinho está vazio. Escolha um produto para começar.</p>
+    <div class="text-center"><a href="{% url 'home' %}" class="btn btn-latao">Ver produtos</a></div>
+</div>
+{% endif %}
 {% endblock %}

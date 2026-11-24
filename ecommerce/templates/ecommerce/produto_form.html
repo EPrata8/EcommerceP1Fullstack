@@ -1,0 +1,16 @@
+{% extends 'ecommerce/base.html' %}
+{% block titulo %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="conta painel">
+    <h1 class="h3 mb-4">{{ titulo }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% include 'ecommerce/_campos.html' %}
+        <div class="d-flex gap-2 mt-2">
+            <button class="btn btn-latao">Salvar produto</button>
+            <a class="btn btn-contorno" href="{% url 'home' %}">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

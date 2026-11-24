@@ -1,3 +1,5 @@
 Django>=4.2.30
+djangorestframework
 psycopg[binary]
 python-dotenv
+django-jazzmin

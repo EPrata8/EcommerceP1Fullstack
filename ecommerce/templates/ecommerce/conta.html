@@ -1,0 +1,21 @@
+{% extends 'ecommerce/base.html' %}
+{% block titulo %}{% if modo == 'entrar' %}Entrar{% else %}Criar conta{% endif %}{% endblock %}
+
+{% block content %}
+<div class="conta painel">
+    <h1 class="h3 mb-4">{% if modo == 'entrar' %}Entrar na sua conta{% else %}Criar conta{% endif %}</h1>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        {% include 'ecommerce/_campos.html' %}
+        <button class="btn btn-latao w-100 mt-2">{% if modo == 'entrar' %}Entrar{% else %}Criar conta{% endif %}</button>
+    </form>
+    <p class="suave small mt-4 mb-0">
+        {% if modo == 'entrar' %}
+            Ainda não tem conta? <a href="{% url 'cadastro' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Criar conta</a>
+        {% else %}
+            Já tem conta? <a href="{% url 'login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Entrar</a>
+        {% endif %}
+    </p>
+</div>
+{% endblock %}

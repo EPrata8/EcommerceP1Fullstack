@@ -1,33 +1,47 @@
 {% extends 'ecommerce/base.html' %}
+{% block titulo %}Loja{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="p-4 bg-dark text-white rounded shadow">
-            <h2>Bem-vindo à Loja!</h2>
-            <p class="text-muted">Confira os melhores produtos que possuímos aqui.</p>
-        </div>
+<header class="cab-painel">
+    <div>
+        <h1>Produtos disponíveis</h1>
+        <p class="suave mb-0">Escolha uma loja ou busque pelo nome do produto.</p>
     </div>
+    <a class="btn btn-latao btn-lg" href="{% url 'dashboard' %}">Abrir dashboard</a>
+</header>
+
+<form method="get" class="d-flex gap-2 mb-3" role="search">
+    {% if loja_id %}<input type="hidden" name="loja" value="{{ loja_id }}">{% endif %}
+    <input class="form-control" type="search" name="q" value="{{ q }}" placeholder="Buscar produto" aria-label="Buscar produto">
+    <button class="btn btn-latao">Buscar</button>
+</form>
+
+<div class="chips mb-4">
+    <a class="chip {% if not loja_id %}ativo{% endif %}" href="{% url 'home' %}{% if q %}?q={{ q|urlencode }}{% endif %}">Todas as lojas</a>
+    {% for l in lojas %}
+        <a class="chip {% if l.id == loja_id %}ativo{% endif %}" href="?loja={{ l.id }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ l.nome }}</a>
+    {% endfor %}
 </div>
 
-<h3 class="mb-3 text-light">Produtos em Destaque</h3>
-<div class="row">
-    {% for produto in produtos %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 bg-dark text-white border-secondary shadow-sm">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{ produto.nome }}</h5>
-                    <p class="card-text text-muted">{{ produto.descricao }}</p>
-                    <p class="fw-bold text-success fs-5 mt-auto">R$ {{ produto.preco }}</p>
-                    <a href="{% url 'adicionar_ao_carrinho' produto.id %}" class="btn btn-primary w-100 mt-2">Adicionar ao Carrinho</a>
-                </div>
-            </div>
-        </div>
+<div class="vitrine">
+    {% for p in produtos %}
+        <article class="produto">
+            <span class="loja-tag">{{ p.organizacao.nome }}</span>
+            <h3>{{ p.nome }}</h3>
+            <p class="desc">{{ p.descricao|default:"" }}</p>
+            <div class="preco">R$ {{ p.preco|floatformat:"2g" }}</div>
+            {% if p.estoque <= 5 %}<div class="pouco mb-2">Restam {{ p.estoque }}</div>{% endif %}
+            <form method="post" action="{% url 'adicionar_ao_carrinho' p.pk %}">
+                {% csrf_token %}
+                <button class="btn btn-latao w-100">Adicionar ao carrinho</button>
+            </form>
+            {% if p.organizacao_id == minha_org %}
+                <a class="btn btn-link-suave btn-sm mt-2" href="{% url 'editar_produto' p.pk %}">Editar produto</a>
+            {% endif %}
+        </article>
     {% empty %}
-        <div class="col-12">
-            <div class="alert alert-warning" role="alert">
-                Nenhum produto cadastrado no momento. Acesse o <a href="/admin/" class="alert-link">painel administrativo</a> para adicionar produtos!
-            </div>
+        <div class="painel" style="grid-column: 1 / -1;">
+            <p class="vazio">Nenhum produto encontrado. Tente outra busca ou escolha outra loja.</p>
         </div>
     {% endfor %}
 </div>
